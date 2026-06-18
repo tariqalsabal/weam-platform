@@ -43,7 +43,7 @@ model User {
   officeId   Int?
   fullName   String
   username   String   @unique
-  password   String // bcrypt hash
+  password   String // PBKDF2 hash
   role       Role     @default(STAFF)
   createdAt  DateTime @default(now())
   office     Office?  @relation(fields: [officeId], references: [id])
@@ -64,7 +64,7 @@ model Customer {
   phoneWhats   String?
   noOfSpouses  Int?       @default(0)
   officeId     Int?
-  password     String // bcrypt hash
+  password     String // PBKDF2 hash
   createdAt    DateTime   @default(now())
   office       Office?    @relation(fields: [officeId], references: [id])
   partners     Partner[]
