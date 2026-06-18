@@ -1,10 +1,6 @@
--- ============================================================
--- منصة وئام — سكيمة Postgres جاهزة لـ Supabase (بلا Node)
--- الصقها في: Supabase > SQL Editor > New query > Run
--- أسماء الأعمدة بصيغة camelCase ومقتبسة لتطابق Prisma Client تماماً.
--- ============================================================
-
--- ---------- الأنواع (Enums) ----------
+// نسخة من supabase/schema.sql لتنفيذها عبر /api/admin/init-db
+// (مزدوجة عمداً ليُضمَّن المحتوى في حزمة Vercel serverless)
+export const SCHEMA_SQL = String.raw`
 DO $$ BEGIN
   CREATE TYPE "Role" AS ENUM ('ADMIN', 'STAFF', 'CUSTOMER');
 EXCEPTION WHEN duplicate_object THEN null; END $$;
@@ -13,7 +9,6 @@ DO $$ BEGIN
   CREATE TYPE "Priority" AS ENUM ('NORMAL', 'IMPORTANT', 'ESSENTIAL');
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- ---------- الجداول ----------
 CREATE TABLE IF NOT EXISTS "offices" (
   "id"          SERIAL PRIMARY KEY,
   "name"        TEXT NOT NULL,
@@ -154,8 +149,6 @@ CREATE TABLE IF NOT EXISTS "rating_details" (
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- ---------- بيانات تجريبية (Seed) ----------
--- حسابات: admin / admin123    و    العميل 0500000000 / 123456
 DO $$
 DECLARE
   v_office     INTEGER;
@@ -202,7 +195,6 @@ BEGIN
       (v_sub,'النسب والمكانة'),
       (v_sub,'تربية الأولاد');
 
-    -- ===== تقييم تجريبي مكتمل (نتيجة 83%) =====
     INSERT INTO "op_assessments" ("officeId","customerId","assessmentId","note")
     VALUES (v_office, v_customer, v_assessment, 'تقييم تجريبي')
     RETURNING "id" INTO v_op;
@@ -227,7 +219,6 @@ BEGIN
       'أداء جيد وفقاً للتقييم.'
     FROM "indicators" WHERE "subAssessmentId" = v_sub;
 
-    -- ===== تقييم تجريبي ثانٍ (جزئي 50%) =====
     INSERT INTO "op_assessments" ("officeId","customerId","assessmentId")
     VALUES (v_office, v_customer, v_assessment)
     RETURNING "id" INTO v_op;
@@ -242,8 +233,8 @@ BEGIN
       CASE WHEN row_number() OVER (ORDER BY "id") <= 3 THEN 3 ELSE NULL END
     FROM "indicators" WHERE "subAssessmentId" = v_sub;
 
-    -- ===== تقييم تجريبي للمنصة =====
     INSERT INTO "ratings" ("customerId","rating","comment","needHelp")
     VALUES (v_customer, 5, 'منصة ممتازة وساعدتني كثيراً.', false);
   END IF;
 END $$;
+`;
