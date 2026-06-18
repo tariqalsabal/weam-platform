@@ -145,7 +145,16 @@ export default function LoginPage() {
           {loading ? "جارٍ الدخول…" : "تسجيل الدخول"}
         </button>
 
-        <p className="mt-4 text-center text-xs" style={{ color: "var(--txt-mut)" }}>
+        {mode === "customer" && (
+          <p className="mt-4 text-center text-sm" style={{ color: "var(--txt-dim)" }}>
+            ليس لديك حساب؟{" "}
+            <a href="/register" className="font-extrabold" style={{ color: "var(--teal)" }}>
+              تسجيل حساب جديد
+            </a>
+          </p>
+        )}
+
+        <p className="mt-3 text-center text-xs" style={{ color: "var(--txt-mut)" }}>
           منصة وئام للإصلاح الأسري © 2025
         </p>
       </form>
