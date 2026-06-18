@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import { SCHEMA_SQL } from "@/lib/schemaSql";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// عميل مباشر (غير مجمّع) لتنفيذ DDL بأمان
+const direct = new PrismaClient({
+  datasourceUrl: process.env.POSTGRES_URL_NON_POOLING || process.env.DIRECT_URL,
+});
 
 // يقسّم الـ SQL إلى جُمل مع احترام كتل $$ ... $$ (DO blocks)
 function splitStatements(sql: string): string[] {
@@ -33,7 +38,7 @@ async function run() {
   const results: { i: number; ok: boolean; error?: string }[] = [];
   for (let i = 0; i < statements.length; i++) {
     try {
-      await prisma.$executeRawUnsafe(statements[i]);
+      await direct.$executeRawUnsafe(statements[i]);
       results.push({ i, ok: true });
     } catch (e) {
       results.push({ i, ok: false, error: e instanceof Error ? e.message : String(e) });
