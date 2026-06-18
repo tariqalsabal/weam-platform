@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SESSION_COOKIE, verifySession } from "@/lib/session";
+import { SESSION_COOKIE, verifySession } from "@/lib/jwt";
 
 const PUBLIC_PATHS = ["/login", "/register", "/policy", "/about-public"];
 

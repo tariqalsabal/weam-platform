@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { verifyPassword } from "@/lib/password";
 import { signSession, setSessionCookie } from "@/lib/session";
 
 export async function POST(req: Request) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     if (mode === "staff") {
       const user = await prisma.user.findUnique({ where: { username: identifier } });
-      if (!user || !bcrypt.compareSync(password, user.password)) {
+      if (!user || !verifyPassword(password, user.password)) {
         return NextResponse.json({ error: "بيانات الدخول غير صحيحة" }, { status: 401 });
       }
       const token = await signSession({
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     // عميل: الدخول بالهاتف
     const customer = await prisma.customer.findUnique({ where: { phoneCall: identifier } });
-    if (!customer || !bcrypt.compareSync(password, customer.password)) {
+    if (!customer || !verifyPassword(password, customer.password)) {
       return NextResponse.json({ error: "رقم الهاتف أو كلمة المرور غير صحيحة" }, { status: 401 });
     }
     const token = await signSession({

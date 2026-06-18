@@ -1,10 +1,10 @@
 import { PrismaClient, Role, Priority } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/lib/password";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const hash = (p: string) => bcrypt.hashSync(p, 10);
+  const hash = (p: string) => hashPassword(p);
 
   // مكتب
   const office = await prisma.office.create({
