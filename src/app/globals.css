@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================== متغيّرات هوية وئام ===================== */
+:root {
+  --teal: #15c3b2;
+  --teal-d: #0c8c81;
+  --violet: #7c5cff;
+  --indigo: #4a3aff;
+  --pink: #ff5c9d;
+  --coral: #ff6b5b;
+  --gold: #ffc23c;
+  --sky: #36c5ff;
+  --green: #22c58b;
+  --red: #ff5b6e;
+  --orange: #ff8e53;
+  --ink: #0a1030;
+  --txt: #ffffff;
+  --txt-dim: rgba(255, 255, 255, 0.78);
+  --txt-mut: rgba(255, 255, 255, 0.55);
+  --glass: rgba(255, 255, 255, 0.12);
+  --glass-2: rgba(255, 255, 255, 0.08);
+  --glass-bd: rgba(255, 255, 255, 0.28);
+  --line: rgba(255, 255, 255, 0.16);
+  --grad-primary: linear-gradient(120deg, #15c3b2, #36c5ff);
+  --grad-violet: linear-gradient(120deg, #4a3aff, #7c5cff);
+  --grad-pink: linear-gradient(120deg, #8e54e9, #ff5c9d);
+  --grad-warm: linear-gradient(120deg, #ff7b54, #ffc23c);
+  --grad-green: linear-gradient(120deg, #16b8a6, #5bd6c0);
+  --grad-danger: linear-gradient(120deg, #ff5b6e, #ff8e53);
+  --r-sm: 12px;
+  --r: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --t: 0.28s var(--ease);
+  --sh: 0 12px 26px rgba(0, 0, 0, 0.25);
+  --sh-lg: 0 22px 50px rgba(0, 0, 0, 0.4);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    @apply font-sans;
+    color: var(--txt);
+    background: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* خلفية Aurora عامة */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -30%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(40% 40% at 20% 25%, rgba(124, 92, 255, 0.55), transparent 60%),
+      radial-gradient(45% 45% at 80% 20%, rgba(21, 195, 178, 0.55), transparent 60%),
+      radial-gradient(50% 50% at 70% 80%, rgba(255, 92, 157, 0.42), transparent 60%),
+      radial-gradient(45% 45% at 25% 85%, rgba(54, 197, 255, 0.42), transparent 60%);
+    filter: blur(22px);
+    animation: weamAurora 18s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes weamAurora {
+  0% { transform: translate3d(-4%, -2%, 0) rotate(0) scale(1.05); }
+  50% { transform: translate3d(3%, 2%, 0) rotate(8deg) scale(1.15); }
+  100% { transform: translate3d(2%, -3%, 0) rotate(-6deg) scale(1.08); }
+}
+@keyframes weamRise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes weamFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-26px) scale(1.12); } }
+@keyframes weamSheen { 0% { left: -40%; } 60%, 100% { left: 130%; } }
+@keyframes weamShimmer { to { background-position: 300% 0; } }
+@keyframes weamStar { 0%, 100% { transform: rotate(-8deg) scale(1); } 50% { transform: rotate(8deg) scale(1.12); } }
+@keyframes weamRip { to { transform: scale(4); opacity: 0; } }
+
+@layer components {
+  .weam-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-bd);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh);
+  }
+
+  /* الشريط العلوي */
+  .weam-topbar {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 26px;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+    border-bottom: 1px solid var(--glass-bd);
+  }
+  .weam-brand { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 20px; }
+  .weam-logo {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #fff, #dffaf6);
+    box-shadow: 0 8px 24px rgba(21, 195, 178, 0.45);
+  }
+  .weam-user {
+    display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--glass-bd); font-weight: 700; cursor: pointer; transition: var(--t);
+  }
+  .weam-user:hover { background: rgba(255, 255, 255, 0.26); transform: translateY(-1px); }
+  .weam-user .av {
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--violet), var(--teal)); font-size: 14px; color: #fff;
+  }
+
+  /* الحاويات */
+  .weam-wrap { position: relative; z-index: 1; max-width: 580px; margin: 0 auto; padding: 28px 18px 60px; }
+  .weam-wrap-wide { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 28px 22px 60px; }
+
+  /* البطاقات الخدمية */
+  .weam-card {
+    --c1: var(--teal); --c2: var(--violet);
+    display: flex; align-items: center; gap: 16px; width: 100%; cursor: pointer; text-align: right;
+    padding: 18px 20px; border: none; border-radius: var(--r); color: #fff; position: relative; overflow: hidden;
+    background: linear-gradient(120deg, var(--c1), var(--c2)); box-shadow: var(--sh);
+    transition: transform var(--t), box-shadow var(--t); animation: weamRise 0.6s var(--ease) both;
+  }
+  .weam-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.25), transparent 40%); opacity: 0; transition: 0.3s;
+  }
+  .weam-card:hover { transform: translateY(-4px) scale(1.015); box-shadow: var(--sh-lg); }
+  .weam-card:hover::before { opacity: 1; }
+  .weam-card .ic {
+    flex: 0 0 50px; height: 50px; border-radius: 15px; display: grid; place-items: center;
+    background: rgba(255, 255, 255, 0.22); transition: var(--t);
+  }
+  .weam-card:hover .ic { transform: rotate(-8deg) scale(1.08); background: rgba(255, 255, 255, 0.34); }
+  .weam-card .ic svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .weam-card .tx { flex: 1; }
+  .weam-card .tx b { display: block; font-size: 18px; font-weight: 800; }
+  .weam-card .tx small { display: block; font-size: 12px; color: rgba(255, 255, 255, 0.82); margin-top: 2px; }
+  .weam-card .arw { opacity: 0.7; transition: 0.3s; font-size: 20px; }
+  .weam-card:hover .arw { transform: translateX(-6px); opacity: 1; }
+  .c-new { --c1: #15c3b2; --c2: #36c5ff; }
+  .c-my { --c1: #4a3aff; --c2: #7c5cff; }
+  .c-set { --c1: #8e54e9; --c2: #ff5c9d; }
+  .c-about { --c1: #ff7b54; --c2: #ffc23c; }
+  .c-rate { --c1: #16b8a6; --c2: #5bd6c0; }
+  .c-out { --c1: #ff5b6e; --c2: #ff8e53; }
+
+  /* الأزرار */
+  .weam-btn {
+    --g1: #15c3b2; --g2: #36c5ff;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-weight: 800; font-size: 16px; color: #fff; cursor: pointer; border: none; border-radius: var(--r);
+    padding: 13px 22px; position: relative; overflow: hidden;
+    background: linear-gradient(120deg, var(--g1), var(--g2)); box-shadow: var(--sh);
+    transition: transform var(--t), box-shadow var(--t), filter var(--t);
+  }
+  .weam-btn:hover { transform: translateY(-2px); box-shadow: var(--sh-lg); filter: saturate(1.1); }
+  .weam-btn:active { transform: translateY(0) scale(0.98); }
+  .weam-btn.block { display: flex; width: 100%; }
+  .weam-btn.ghost { background: var(--glass); border: 1px solid var(--glass-bd); box-shadow: none; }
+  .weam-btn.success { --g1: #16b8a6; --g2: #22c58b; }
+  .weam-btn.violet { --g1: #4a3aff; --g2: #7c5cff; }
+  .weam-btn.danger { --g1: #ff5b6e; --g2: #ff8e53; }
+  .weam-btn[disabled] { opacity: 0.55; pointer-events: none; }
+
+  /* الحقول */
+  .weam-field { margin-bottom: 16px; }
+  .weam-label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 7px; color: var(--txt-dim); }
+  .weam-input {
+    width: 100%; font-size: 15px; color: #fff; background: var(--glass-2);
+    border: 1px solid var(--line); border-radius: var(--r-sm); padding: 13px 16px; outline: none; transition: var(--t);
+  }
+  .weam-input::placeholder { color: var(--txt-mut); }
+  .weam-input:focus { border-color: var(--teal); background: rgba(255, 255, 255, 0.14); box-shadow: 0 0 0 4px rgba(21, 195, 178, 0.22); }
+
+  /* الهيرو */
+  .weam-hero {
+    text-align: center; padding: 30px 24px 26px; border-radius: var(--r-xl); margin-bottom: 24px;
+    background: var(--glass); border: 1px solid var(--glass-bd); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    box-shadow: var(--sh-lg); position: relative; overflow: hidden; animation: weamRise 0.7s var(--ease) both;
+  }
+  .weam-hero::after {
+    content: ""; position: absolute; top: -50%; left: -30%; width: 60%; height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    transform: rotate(18deg); animation: weamSheen 6s linear infinite; pointer-events: none;
+  }
+  .weam-hero h1 {
+    font-size: 24px; font-weight: 900; margin: 0 0 10px;
+    background: linear-gradient(90deg, #fff, var(--gold), #fff, var(--teal), #fff);
+    background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: weamShimmer 6s linear infinite;
+  }
+  .weam-hero p { color: var(--txt-dim); font-size: 14.5px; line-height: 1.9; max-width: 440px; margin: 0 auto; }
+  .weam-star { width: 64px; height: 64px; margin: 0 auto 14px; display: grid; place-items: center; filter: drop-shadow(0 6px 18px rgba(255, 194, 60, 0.6)); animation: weamStar 6s ease-in-out infinite; }
+  .weam-stats { display: flex; gap: 10px; margin-top: 18px; }
+  .weam-stat { flex: 1; padding: 12px 6px; border-radius: var(--r-sm); background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-bd); }
+  .weam-stat b { display: block; font-size: 22px; font-weight: 900; line-height: 1; }
+  .weam-stat span { font-size: 11.5px; color: var(--txt-dim); }
+
+  /* شريط التقدّم والشارات */
+  .weam-progress { height: 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+  .weam-progress > i { display: block; height: 100%; border-radius: inherit; background: var(--grad-green); transition: width 1s var(--ease); }
+  .weam-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 800; background: var(--glass); border: 1px solid var(--glass-bd); color: #fff; }
+
+  .weam-section-title { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 18px; margin: 6px 2px 14px; }
+  .weam-section-title::before { content: ""; width: 6px; height: 22px; border-radius: 6px; background: var(--grad-primary); }
+
+  .weam-ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.45); transform: scale(0); animation: weamRip 0.6s ease-out; pointer-events: none; }
+  .weam-blob { position: fixed; border-radius: 50%; z-index: 0; filter: blur(2px); opacity: 0.5; mix-blend-mode: screen; pointer-events: none; animation: weamFloat 9s ease-in-out infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

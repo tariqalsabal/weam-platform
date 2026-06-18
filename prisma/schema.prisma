@@ -1,0 +1,240 @@
+// منصة وئام للإصلاح الأسري — سكيمة Postgres
+// تطابق نطاق نظام أبكس الحالي مع تصميم نظيف لقاعدة جديدة.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ===================== الأشخاص والمكاتب =====================
+
+model Office {
+  id          Int        @id @default(autoincrement())
+  name        String
+  location    String?
+  address     String?
+  phone       String?
+  email       String?
+  owner       String?
+  description String?
+  createdAt   DateTime   @default(now())
+  users       User[]
+  customers   Customer[]
+  assessments OpAssessment[]
+
+  @@map("offices")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+// موظفو المكتب / الإدارة
+model User {
+  id         Int      @id @default(autoincrement())
+  officeId   Int?
+  fullName   String
+  username   String   @unique
+  password   String // bcrypt hash
+  role       Role     @default(STAFF)
+  createdAt  DateTime @default(now())
+  office     Office?  @relation(fields: [officeId], references: [id])
+
+  @@map("users")
+}
+
+// العميل (يسجّل دخوله بالهاتف + كلمة المرور)
+model Customer {
+  id           Int        @id @default(autoincrement())
+  name         String
+  gender       String?
+  age          Int?
+  maritalStat  String?
+  email        String?
+  address      String?
+  phoneCall    String     @unique
+  phoneWhats   String?
+  noOfSpouses  Int?       @default(0)
+  officeId     Int?
+  password     String // bcrypt hash
+  createdAt    DateTime   @default(now())
+  office       Office?    @relation(fields: [officeId], references: [id])
+  partners     Partner[]
+  assessments  OpAssessment[]
+  ratings      Rating[]
+
+  @@map("customers")
+}
+
+// أطراف أسرة العميل (زوجة 1، ابن، ...)
+model Partner {
+  id          Int      @id @default(autoincrement())
+  customerId  Int
+  name        String
+  gender      String?
+  age         Int?
+  maritalStat String?
+  email       String?
+  address     String?
+  phoneCall   String?
+  phoneWhats  String?
+  serial      Int      @default(1)
+  createdAt   DateTime @default(now())
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  opPartners  OpPartnerAssessment[]
+
+  @@map("partners")
+}
+
+// ===================== قوالب التقييم =====================
+
+// الأداة/الاستبيان (أداة قياس مستوى علاقتي بزوجتي ...)
+model Assessment {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String?
+  forGender   String? // male | female | both
+  active      Boolean         @default(true)
+  subs        SubAssessment[]
+  opAssess    OpAssessment[]
+
+  @@map("assessments")
+}
+
+// الجانب الرئيسي (المعايير الاجتماعية / حاجة الرجل ...)
+model SubAssessment {
+  id           Int         @id @default(autoincrement())
+  assessmentId Int
+  name         String
+  description  String?
+  sortOrder    Int         @default(0)
+  assessment   Assessment  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  indicators   Indicator[]
+
+  @@map("sub_assessments")
+}
+
+// المؤشر التفصيلي (الأخلاق والطباع ...)
+model Indicator {
+  id              Int           @id @default(autoincrement())
+  subAssessmentId Int
+  indicator       String
+  description     String?
+  // أي درجات (0..4) تُعرض كخيارات لهذا المؤشر
+  showLevel0      Boolean       @default(true)
+  showLevel1      Boolean       @default(true)
+  showLevel2      Boolean       @default(true)
+  showLevel3      Boolean       @default(true)
+  showLevel4      Boolean       @default(true)
+  sub             SubAssessment @relation(fields: [subAssessmentId], references: [id], onDelete: Cascade)
+  opDetails       OpDetAssessment[]
+  analyses        AnalyseIndicator[]
+
+  @@map("indicators")
+}
+
+// نصوص النتائج الجاهزة حسب الدرجة/الأولوية
+model AnalyseIndicator {
+  id          Int       @id @default(autoincrement())
+  indicatorId Int
+  side        String? // الطرف (زوجة/أهل...)
+  priority    Int? // وزن الأولوية
+  degree      Int // 0..4
+  resultNote  String
+  indicator   Indicator @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
+
+  @@map("analyse_indicators")
+}
+
+// ===================== التقييمات التشغيلية =====================
+
+enum Priority {
+  NORMAL // عادي
+  IMPORTANT // مهم
+  ESSENTIAL // ضروري
+}
+
+// جلسة تقييم لعميل على أداة معيّنة
+model OpAssessment {
+  id           Int        @id @default(autoincrement())
+  officeId     Int?
+  customerId   Int
+  assessmentId Int
+  date         DateTime   @default(now())
+  note         String?
+  office       Office?     @relation(fields: [officeId], references: [id])
+  customer     Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assessment   Assessment  @relation(fields: [assessmentId], references: [id])
+  partners     OpPartnerAssessment[]
+
+  @@map("op_assessments")
+}
+
+// تقييم طرف محدّد ضمن الجلسة (= البطاقة في "تقييماتي")
+model OpPartnerAssessment {
+  id             Int          @id @default(autoincrement())
+  opAssessmentId Int
+  partnerId      Int
+  partnerName    String?
+  date           DateTime     @default(now())
+  note           String?
+  // النِسب المحسوبة
+  scorePct       Int? // النتيجة %
+  progressPct    Int          @default(0) // نسبة التقدّم %
+  aiAdvice       String?
+  opAssessment   OpAssessment @relation(fields: [opAssessmentId], references: [id], onDelete: Cascade)
+  partner        Partner      @relation(fields: [partnerId], references: [id])
+  details        OpDetAssessment[]
+
+  @@map("op_partner_assessments")
+}
+
+// صف تقييم مؤشر واحد (= صف في جدول مؤشرات التقييم)
+model OpDetAssessment {
+  id                    Int                 @id @default(autoincrement())
+  opPartnerAssessmentId Int
+  indicatorId           Int
+  priority              Priority            @default(NORMAL)
+  degree                Int? // 0..4
+  resultNote            String?
+  note                  String?
+  createdAt             DateTime            @default(now())
+  opPartner             OpPartnerAssessment @relation(fields: [opPartnerAssessmentId], references: [id], onDelete: Cascade)
+  indicator             Indicator           @relation(fields: [indicatorId], references: [id])
+
+  @@map("op_det_assessments")
+}
+
+// ===================== تقييم المنصة =====================
+
+model Rating {
+  id         Int            @id @default(autoincrement())
+  customerId Int
+  rating     Int // 1..5
+  comment    String?
+  needHelp   Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  details    RatingDetail[]
+
+  @@map("ratings")
+}
+
+model RatingDetail {
+  id        Int      @id @default(autoincrement())
+  ratingId  Int
+  indicator String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  parent    Rating   @relation(fields: [ratingId], references: [id], onDelete: Cascade)
+
+  @@map("rating_details")
+}
