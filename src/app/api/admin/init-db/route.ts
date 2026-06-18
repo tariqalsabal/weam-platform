@@ -45,7 +45,7 @@ async function run() {
     }
   }
   const failed = results.filter((r) => !r.ok);
-  return { total: statements.length, ok: results.length - failed.length, failed };
+  return { total: statements.length, succeeded: results.length - failed.length, failed };
 }
 
 function authorized(req: Request) {
